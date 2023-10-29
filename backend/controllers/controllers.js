@@ -54,23 +54,6 @@ const deleteTask = async (req, res) => {
 };
 
 
-// DELETE task
-
-const deleteCompletedTask = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const task = await Task.findByIdAndDelete(id);
-
-    if (!task) {
-      return res.status(404).json(`No task found with id: ${id}`);
-    }
-
-    res.status(200).send("task deleted");
-  } catch (error) {
-    res.status(500).json({ msg: error.message });
-  }
-};
-
 // UPDATE task
 
 const updateTask = async (req, res) => {
@@ -93,37 +76,10 @@ const updateTask = async (req, res) => {
   }
 };
 
-// POST completed task
-
-const createCompletedTask = async (req, res) => {
-  try {
-    const response = await Task.create(req.body);
-    res.status(200).json(response);
-  } catch (error) {
-    res.status(500).json({ msg: error.message });
-  }
-};
-
-
-// GET completed tasks
-
-const getCompletedTasks = async(req, res) => {
-    try {
-        const response = await Task.find()
-        res.status(200).json(response)
-
-    } catch (error) {
-        res.status(500).json({msg: error.message})
-    }
-}
-
 module.exports = {
   createTask,
-  createCompletedTask,
   getTasks,
   getTask,
-  getCompletedTasks,
   updateTask,
   deleteTask,
-  deleteCompletedTask,
 };

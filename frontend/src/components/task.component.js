@@ -9,8 +9,6 @@ const Task = () => {
   const [task, setTask] = useState("");
   const [updatedTask, setUpdatedTask] = useState("");
   const [updatingTask, setUpdatingTask] = useState(null);
-  const [completedTasks, setCompletedTasks] = useState([]);
-
   const URL = "http://localhost:5000/api/tasks";
 
   const onHandleDeleteTask = async (id) => {
@@ -45,63 +43,27 @@ const Task = () => {
     }
   };
 
-  const onHandleCheck = async (name, id) => {
-      console.log("name: ", name)
+  const onHandleCheck = async (id) => {
     try {
-      // Create as completed task in the database
-      const response = await axios.post(`${URL}/completed`, {
-        name: name
+      const response = await axios.patch(`${URL}/${id}`, {
+        completed: true,
       });
 
-      if (response.status === 200) {
-        console.log("response: ", response);
-        setCompletedTasks([...completedTasks, name]);
-                
-
-      }
-
-      console.log("response:", response);
-      console.log("Task successfully added to completed tasks");
-
-    //   // Check if the task ID is already in completedTasks
-    //   if (completedTasks.includes(id)) {
-    //     // Remove the task ID if it's already completed
-    //     setCompletedTasks(completedTasks.filter((taskId) => taskId !== id));
-    //   } else {
-    //     // Add the task ID to completedTasks if not completed
-    //     setCompletedTasks([...completedTasks, id]);
-    //   }
+      console.log("response: ", response);
+      console.log("successfully updated");
     } catch (error) {
       console.error(error);
     }
   };
-  
-  console.log("completed tasks: ", completedTasks);
-  
-  const onHandleUncheck = async ( id) => {
+
+  const onHandleUncheck = async (id) => {
     try {
-      // Create as completed task in the database
-      const response = await axios.delete(`${URL}/completed/${id}`, {
-           headers: {
-          token: "TOKEN",
-        },
+      const response = await axios.patch(`${URL}/${id}`, {
+        completed: false,
       });
-      if (response.status === 200) {
-        console.log("Completed task removed successfully");
-        setCompletedTasks(completedTasks.filter((task) => task._id !== id));
-      }
 
-      console.log("response:", response);
-      console.log("Task successfully added to completed tasks");
-
-      // Check if the task ID is already in completedTasks
-      if (completedTasks.includes(id)) {
-        // Remove the task ID if it's already completed
-        setCompletedTasks(completedTasks.filter((taskId) => taskId !== id));
-      } else {
-        // Add the task ID to completedTasks if not completed
-        setCompletedTasks([...completedTasks, id]);
-      }
+      console.log("response: ", response);
+      console.log("successfully updated");
     } catch (error) {
       console.error(error);
     }
@@ -123,8 +85,9 @@ const Task = () => {
     }
   };
 
-  // fetch Tasks
+  const completedTasks= taskList.filter((task) => task.completed)
 
+  // fetch Tasks
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -138,20 +101,6 @@ const Task = () => {
     fetchData(); // Call the async function
   }, [taskList]);
 
-  // fetch Completed Tasks
-
-  useEffect(() => {
-    const fetchCompletedTasks = async () => {
-      try {
-        const response = await axios.get(`${URL}/completed`);
-        setCompletedTasks(response.data);
-      } catch (error) {
-        console.log("Error fetching completed tasks");
-      }
-    };
-
-    fetchCompletedTasks();
-  }, [completedTasks]);
 
   return (
     <>
@@ -184,15 +133,15 @@ const Task = () => {
               )}
 
               <div className="icons">
-                {completedTasks.includes(task._id) ? (
+                {task.completed ? (
                   <FaCheckDouble
                     className="check"
-                    onClick={() => onHandleUncheck( task._id)}
+                    onClick={() => onHandleUncheck(task._id)}
                   />
                 ) : (
                   <FaCheck
                     className="check"
-                    onClick={() => onHandleCheck(task.name, task._id)}
+                    onClick={() => onHandleCheck(task._id)}
                   />
                 )}
                 <FaEdit
